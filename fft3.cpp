@@ -28,9 +28,9 @@ void export_data(thrust::complex<double> *z, std::string fn, int N) {
 
 int main() {
     // data init
-    int Nt = 1<<8;//4;
-    int Ny = 1<<8;
-    int Nx = 1<<12;//12;
+    int Nt = 1<<4;//4;
+    int Ny = 1<<12;
+    int Nx = 1<<8;//12;
     int N = Nt * Nx * Ny;
     
     std::cout << Nt * Nx * Ny << " values" << std::endl;
