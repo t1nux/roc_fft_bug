@@ -19,6 +19,18 @@ size_t rocfft_buffer_size;
 void *rocfft_buffer_d;
 rocfft_execution_info rocfft_info;
 
+// export function
+void export_data(std::complex<double> *z, std::string fn, int N) {
+    std::ofstream fl;
+    fl.open(fn, std::ios::out | std::ios::binary);
+    for (int i=0; i < N; ++i) {
+        double rp = z[i].real();
+        double ip = z[i].imag();
+        fl.write(reinterpret_cast<char*>(&rp), sizeof(double));
+        fl.write(reinterpret_cast<char*>(&ip), sizeof(double));
+    }
+    fl.close();
+};
 
 // norms added by evetsso: https://github.com/evetsso/roc_fft_bug
 struct VectorNorms
@@ -63,8 +75,8 @@ VectorNorms distance(const std::complex<double>* buf1, const std::complex<double
 int main() {
     // data init
     int Nt = 1<<8;//4;
-    int Ny = 1<<8;
-    int Nx = 1<<12;//12;
+    int Ny = 1<<12;
+    int Nx = 1<<8;//12;
     int N = Nt * Nx * Ny;
 
     std::cout << Nt * Nx * Ny << " values" << std::endl;
@@ -251,9 +263,13 @@ int main() {
     printf("l2 difference: %e\nl-inf difference: %e\n",
            diff.l_2 / input_norm.l_2 * sqrt(log2(N)), diff.l_inf / input_norm.l_inf / log(N));
 
+    export_data(z3d, "/tmp/z3d.bin", N);
+    export_data(z21d, "/tmp/z21d.bin", N);
+    export_data(z3d_fftw, "/tmp/z3d_fftw.bin", N);
 
     free(z3d);
     free(z21d);
+    free(z3d_fftw);
 
     HIP_ASSERT(hipFree(z_d));
     return 0;
